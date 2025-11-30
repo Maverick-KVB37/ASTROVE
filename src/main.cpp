@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     std::cout.setf(std::ios::unitbuf);
     std::cin.setf(std::ios::unitbuf);
     
-        // Initialize magic bitboards
+    // Initialize magic bitboards
     Astrove::magic::init();
     
     // Initialize Zobrist hashing
@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
     // Initialize evaluation tables
     ASTROVE::eval::InitializePieceSquareTable();
 
+    Search::init_search_table();
     // Create UCI handler
     UCI uci;
     

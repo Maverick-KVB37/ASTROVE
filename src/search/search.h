@@ -128,6 +128,12 @@ struct SearchInfo {
     }
 };
 
+//logarithmic table
+extern int reductions[64][64];
+void init_search_table();
+
+
+
 // ==================== SEARCH CLASS ====================
 /*------------------------------------------
 | so this find the best move by exploring game tree and also this
@@ -181,7 +187,7 @@ private:
             }
         }
     }
-    
+
     // --- DATA MEMBERS ---
     Position& pos;
     TranspositionTable& tt;

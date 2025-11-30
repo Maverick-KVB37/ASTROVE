@@ -1,7 +1,18 @@
 #include "search.h"
 #include <iostream>
+#include <cmath>
 
 namespace Search {
+
+int reductions[64][64];
+void init_search_table(){
+    for(int depth=1;depth<64;++depth){
+        for(int move=1;move<64;++move){
+            double R=0.75+std::log(depth)*std::log(move)/2.25;
+            reductions[depth][move]=static_cast<int>(R);
+        }
+    }
+}
 
 Searcher::Searcher(Position& pos, TranspositionTable& tt)
     : pos(pos), tt(tt), stopFlag(false), nodes(0), selDepth(0) {
@@ -321,13 +332,13 @@ int Searcher::pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move pre
 
         // ============================ LMR =========================
         if(depth>=3 && legalMoves>4 && !PvNode && !inCheck && !move.is_capture() && !move.is_promotion() && !givesCheck && extension==0){
-            int R=1+(depth/6);
-            if(legalMoves>10) R++;
-            //also don`t reduce when depth<1
-            int reduceddepth=std::max(1,depth-1-R);
-
+            int d=std::min(depth,63);
+            int m=std::min(legalMoves,63);
+            int R=reductions[d][m];
+            
+            int reducedepth=std::max(1,depth-1-R);
             //now search with LMR
-            score=-pvs<~c,false>(reduceddepth,ply+1,-alpha-1,-alpha,true,move);
+            score=-pvs<~c,false>(reducedepth,ply+1,-alpha-1,-alpha,true,move);
             //so now check if score>alpha then our reuction is wrong and move is good
             if(score>alpha){
                 needfullsearch=true;
