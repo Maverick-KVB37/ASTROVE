@@ -41,7 +41,7 @@ public:
                int score, int eval, int ply, Move bestMove);
 
     bool probe(uint64_t key, int depth, int alpha,
-               int beta, int& score, Move& bestMove, int ply) const;
+               int beta, int& score, Move& bestMove,int& flag, int ply) const;
 
     int hashfull() const;                        // occupancy (for UCI display)
 

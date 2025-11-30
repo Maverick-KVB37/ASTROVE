@@ -170,7 +170,7 @@ void Searcher::iterative_deepening() {
 }
 
 template <Color c, bool PvNode>
-int Searcher::pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move previousMove) {
+int Searcher::pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move previousMove,Move excludeMove) {
     if(ply<MAX_PLY){
         stack[ply].pv.length=0;
     }
@@ -187,16 +187,19 @@ int Searcher::pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move pre
     // Stop/time check every 2048 nodes
     if ((nodes & 2047) == 0) check_time();
     if (stopFlag) return 0;
+
     // Transposition Table probe
-    int ttScore;
+    int ttScore=-INFINITE;
+    int ttFlag=HASH_FLAG_ALPHA;
     Move ttMove=NO_MOVE;
-    if (tt.probe(pos.hash(), depth, alpha, beta, ttScore, ttMove, ply)){
-        //we onlt use tt score to cut off when we are not in a pv node
-        if(!PvNode){
+
+    bool ttHit = tt.probe(pos.hash(), depth, alpha, beta, ttScore, ttMove, ttFlag, ply);
+
+    if (ttHit) {
+        if (!PvNode) {
             return ttScore;
         }
     }
-    
 
     bool inCheck=pos.inCheck<c>();
     //check extension
@@ -213,11 +216,35 @@ int Searcher::pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move pre
 
         Move iidMove=NO_MOVE;
         int iidScore=0;
-        if(tt.probe(pos.hash(),depth,alpha,beta,iidScore,iidMove,ply)){
+        int iidFlag=0; //dummy just for matching signature
+        if(tt.probe(pos.hash(),depth,alpha,beta,iidScore,iidMove,iidFlag,ply)){
             // so we found move and can use it as ordering
             ttMove=iidMove;
+            ttHit=true;
+            ttScore=iidScore;
+            ttFlag=iidFlag;
         }
     }
+
+    //SINGULAR EXTENSION
+    //here concept is if TT is move is way better than the rest we extend search depth
+    //and we verify this by searching position agian but excluding ttmove
+    if  (ply>0 && depth>=8 && ttMove!=NO_MOVE && ttHit && 
+        excludeMove==NO_MOVE && abs(ttScore)<MATE_SCORE-100 &&
+        (ttFlag==HASH_FLAG_BETA||ttFlag==HASH_FLAG_EXACT) && !inCheck){
+
+        //if other move can`t even beat(ttscore-margin) then ttmove is singular
+        int singularbeta=ttScore-2*depth;
+        int reduceddepth=(depth-1)/2;
+
+        int score=pvs<c,false>(reduceddepth,ply+1,singularbeta-1,singularbeta,cutNode,previousMove,ttMove);
+        //if score failed low it means all other move are bad
+        //and ttmove is unique we extend the search
+        if(score<singularbeta){
+            extension=1;
+        }
+    }
+
     //static evaluation
     int staticEval=0;
     if(!inCheck){
@@ -287,9 +314,13 @@ int Searcher::pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move pre
     int quietmovesearched=0;
 
     for (const Move move : moves) {
+        //singluar extension
+        if(move==excludeMove){
+            continue;
+        }
 
         //============== LMP ===============
-        if(!PvNode && !inCheck && depth<8 && move.is_capture() && !move.is_promotion()){
+        if(!PvNode && !inCheck && depth<8 && !move.is_capture() && !move.is_promotion()){
             int lmpthre=3+depth*depth;
             if(quietmovesearched>=lmpthre){
                 continue; //skip the move
@@ -473,7 +504,17 @@ int Searcher::quiescence(int alpha, int beta, int ply) {
 
     //now iterate
     int legalMoves=0;
-    for(const Move& move:interestingMoves){
+    const auto& movescore=orderer.getScores();
+    for(size_t i=0;i<interestingMoves.size();++i){
+        const Move& move=interestingMoves[i];
+
+        //if capture is ad(score<0) skip it
+        if(!inCheck){
+            if(movescore[i]<-50){
+                continue;
+            }
+        }
+
         // Make the move
         pos.makemove<c>(move);
         

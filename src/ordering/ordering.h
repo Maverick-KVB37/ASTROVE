@@ -22,6 +22,8 @@ public:
 
     // Storage for scores during sorting
     std::vector<int> scores;
+    const std::vector<int>& getScores() const { return scores; }
+    
 private:
     static constexpr int SEEVALUE[6] = {100, 325, 335, 500, 975, 0};
 

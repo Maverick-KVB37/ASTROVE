@@ -150,7 +150,7 @@ private:
     // --- search algorithm ---
     //negamax with alpha-beta pruning and PV node
     template <Color Us, bool PvNode>
-    int pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move previousMove);
+    int pvs(int depth, int ply, int alpha, int beta, bool cutNode,Move previousMove,Move excludedMove=NO_MOVE);
 
     //extend search at leaf of tree for avoiding horizon effect
     template <Color Us>

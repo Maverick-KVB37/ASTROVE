@@ -80,7 +80,7 @@ void TranspositionTable::store(uint64_t key, int depth, int flag,
 
 // probe for a position in the tt
 bool TranspositionTable::probe(uint64_t key, int depth, int alpha,
-                               int beta, int& score, Move& bestMove, int ply) const {
+                               int beta, int& score, Move& bestMove,int& flag,int ply) const {
 
     size_t index = key % (numEntries / MAX_BUCKETS);
     TTEntry* bucket = &table[index * MAX_BUCKETS];
@@ -90,11 +90,15 @@ bool TranspositionTable::probe(uint64_t key, int depth, int alpha,
         if (entry.key != key) continue;
 
         bestMove = entry.bestMove;
-        if (entry.depth < depth) return false;
+        flag=entry.flag;
 
         int stored = entry.score;
         if (stored >= 49000) stored -= ply;
         else if (stored <= -49000) stored += ply;
+
+        score=stored;
+
+        if (entry.depth < depth) return false;
 
         if (entry.flag == HASH_FLAG_EXACT) {
             score = stored;
