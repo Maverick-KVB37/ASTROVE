@@ -34,15 +34,7 @@ Move Searcher::think(const SearchLimits& limits) {
         moveNumber=(fullMoves-1)*2+1;
     }
 
-    // Debug output
-    /*std::cerr << "DEBUG: fullMoves=" << fullMoves 
-              << " side=" << (pos.sideToMove() == White ? "White" : "Black")
-              << " moveNumber=" << moveNumber << std::endl;
-    */
     tm.start(limits,pos.sideToMove(),moveNumber);
-
-    // Debug output
-    //std::cerr << "DEBUG: Allocated time: " << tm.allocatedTime() << "ms" << std::endl;
 
     iterative_deepening(); // main search loop
 
@@ -56,7 +48,6 @@ Move Searcher::think(const SearchLimits& limits) {
                        (bestMove.to() >= 64);
     
     if (info.pv.length == 0 || moveInvalid) {
-        std::cerr << "WARNING: Invalid PV move, generating emergency move" << std::endl;
         
         // Generate emergency move
         MoveList moves;
@@ -69,7 +60,6 @@ Move Searcher::think(const SearchLimits& limits) {
                 pos.unmakemove<White>(move);
                 
                 if (legal) {
-                    std::cerr << "Emergency move selected: " << move.to_uci_string() << std::endl;
                     return move;
                 }
             }
@@ -82,7 +72,6 @@ Move Searcher::think(const SearchLimits& limits) {
                 pos.unmakemove<Black>(move);
                 
                 if (legal) {
-                    std::cerr << "Emergency move selected: " << move.to_uci_string() << std::endl;
                     return move;
                 }
             }
@@ -90,11 +79,9 @@ Move Searcher::think(const SearchLimits& limits) {
         
         // Last resort: return first move if any exist
         if (!moves.empty()) {
-            std::cerr << "CRITICAL: Returning first pseudo-legal move!" << std::endl;
             return moves[0];
         }
         
-        std::cerr << "FATAL: No moves available!" << std::endl;
         return NO_MOVE;
     }
     
@@ -505,8 +492,20 @@ int Searcher::quiescence(int alpha, int beta, int ply) {
     }
 
     //now iterate
+    //for acces the pre calculated scoeres
+    const auto& movescores=orderer.getscores();
+
     int legalMoves=0;
-    for(const Move& move:interestingMoves){
+    for(size_t i=0;i<interestingMoves.size();++i){
+        const Move& move = interestingMoves[i];
+
+        //now see pruning
+        if(!inCheck){
+            if(movescores[i]<-50){
+                continue; //skip bad captures
+            }
+        }
+
         // Make the move
         pos.makemove<c>(move);
         

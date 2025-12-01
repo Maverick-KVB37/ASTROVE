@@ -15,21 +15,14 @@ public:
     // Score capture moves for ordering using SEE
     void scoreCaptures(const Position& pos, MoveList& captures);
 
-    // Static Exchange Evaluation to order captures
-    int see(const Position& pos, Move move);
-
-    bool seeGe(const Position& pos, Move move, int threshold);
-
     // Storage for scores during sorting
     std::vector<int> scores;
+
+    //helper func
+    const std::vector<int>& getscores() const { return scores;}
 private:
     static constexpr int SEEVALUE[6] = {100, 325, 335, 500, 975, 0};
-
-    Bitboard minAttacker(const Position& pos, Bitboard attadef, Color color, PieceType& attacker);
-    Bitboard considerXRays(const Position& pos, Square sq, Bitboard occupiedBB);
-    Bitboard allAttackers(const Position& pos, Square sq, Bitboard occupiedBB);
-    Bitboard attackersForSide(const Position& pos, Color attackerColor, Square sq, Bitboard occupiedBB);
-
+    
     //MVV-LVA Table [Attacker][Victim]
     int mvv_lva[6][6];
     //consatnts

@@ -5,6 +5,7 @@
 #include "../table/tt.h"
 #include "../ordering/ordering.h"
 #include "../evaluation/evaluation.h"
+#include "../board/see.h"
 #include "timemanager.h"
 
 #include <atomic>
