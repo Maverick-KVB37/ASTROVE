@@ -7,32 +7,6 @@
 
 namespace ASTROVE {
 namespace eval{
-    /*
-    using Score = int16_t;
-
-    struct EvalScore{
-        int32_t value;
-        
-        //constructor allow automatic conversion
-        constexpr EvalScore(int32_t v=0) : value(v) {}
-        //allow automatic conversion to int32_t
-        constexpr operator int32_t() const { return value;}
-    };
-
-    // Compose a combined evaluation with opening and endgame parts
-    constexpr EvalScore composeEval(Score opening, Score endgame) {
-        return EvalScore(static_cast<uint32_t>(endgame) << 16) |
-                                      (static_cast<uint16_t>(opening));
-    }
-
-    // Extract opening and endgame from combined EvalScore
-    constexpr Score openingScore(EvalScore score) {
-        return static_cast<Score>(score.value & 0xFFFF);
-    }
-    constexpr Score endgameScore(EvalScore score) {
-        return static_cast<Score>((score.value >> 16) & 0xFFFF);
-    }
-    */
 
     // Evaluation constants
     constexpr EvalScore TEMPO_BONUS = composeEval(20, 10);

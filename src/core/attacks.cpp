@@ -83,7 +83,7 @@ namespace Attacks {
     // The main initialization function.
     // Its only job is to call the initializer for the magic bitboard module.
     void init() {
-        Astrove::magic::init();
+        ASTROVE::magic::init();
     }
 
 }

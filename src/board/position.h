@@ -14,6 +14,7 @@ const std::string defaultFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ
 // State info for make/unmake
 struct StateInfo {
     uint64_t hashKey;
+    uint64_t pawnKey=0;
     Square enpassantSquare;
     U8 castlingRights;
     U8 halfMoveClock;
@@ -51,6 +52,7 @@ public:
     inline Piece pieceAt(Square sq) const { return board[sq]; }
     inline Color sideToMove() const { return stm; }
     inline uint64_t hash() const { return state->hashKey; }
+    uint64_t pawnKey() const { return state->pawnKey; }
     inline Square epSquare() const { return state->enpassantSquare; }
     inline U8 castling() const { return state->castlingRights; }
 
@@ -133,6 +135,10 @@ private:
     // Zobrist helpers (inline for speed)
     inline void togglePiece(Piece piece, Square sq) {
         state->hashKey ^= zobrist.pieceKeys[piece][sq];
+        //for pawn
+        if(piecetype(piece)==Pawn){
+            state->pawnKey^=zobrist.pieceKeys[piece][sq];
+        }
     }
     
     inline void toggleEnpassant(Square sq) {
@@ -216,6 +222,7 @@ void Position::makemove(Move move){
 
     //copy current state values
     newState->hashKey=state->hashKey;
+    newState->pawnKey=state->pawnKey;
     newState->castlingRights=state->castlingRights;
     newState->enpassantSquare=state->enpassantSquare;
     newState->halfMoveClock=state->halfMoveClock;

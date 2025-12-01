@@ -17,15 +17,15 @@ namespace Attacks {
     // Functions to get attack bitboards for sliding pieces.
     // These will use the magic bitboard tables.
     inline Bitboard get_rook_attacks(Square sq, Bitboard occupied){
-         return Astrove::magic::GetRookAttacks(sq, occupied);
+         return ASTROVE::magic::GetRookAttacks(sq, occupied);
     }
     inline Bitboard get_bishop_attacks(Square sq, Bitboard occupied){
-        return Astrove::magic::GetBishopAttacks(sq, occupied);
+        return ASTROVE::magic::GetBishopAttacks(sq, occupied);
     }
     
     // A convenience function for queens.
     inline Bitboard get_queen_attacks(Square sq, Bitboard occupied){
-        return Astrove::magic::GetQueenAttacks(sq, occupied);
+        return ASTROVE::magic::GetQueenAttacks(sq, occupied);
     }
 
     inline Bitboard get_pawn_attacks(Color c, Square sq){

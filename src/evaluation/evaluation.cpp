@@ -2,6 +2,7 @@
 #include "../core/types.h"
 #include "../core/attacks.h"
 #include "psqt.h"
+#include "../table/pawnhash.h"
 #include <algorithm>
 
 namespace ASTROVE::eval {
@@ -21,7 +22,7 @@ namespace ASTROVE::eval {
         return calculate_final_score(pos);
     }
 
-    void Evaluator::initialize(const Position& pos) {
+    void Evaluator::initialize(const Position&) {
         evalData = EvaluationData{};
     }
 
@@ -46,6 +47,16 @@ namespace ASTROVE::eval {
 
     //function for Evaluate Pawn
     void Evaluator::evaluate_pawns(const Position& pos){
+
+        uint64_t key=pos.pawnKey();
+        EvalScore* cacheScore=ASTROVE::table::pawnhashtable.probe(key);
+        if(cacheScore){
+            evalData.add(*cacheScore);
+            return;
+        }
+        //if miss then calculate in to temp accumulator 
+        EvaluationData pawnData;
+        
         Bitboard whitePawns = pos.pawns<White>();
         Bitboard blackPawns =pos.pawns<Black>();
 
@@ -70,17 +81,17 @@ namespace ASTROVE::eval {
 
             //isolated pawn
             if((whitePawns & ADJACENT_FILES[f])==0){
-                evalData.add(ISOLATED_PAWN_PENALTY);
+                pawnData.add(ISOLATED_PAWN_PENALTY);
             }
 
             //double pawn
             if((whitePawns&MASKFILE[f])^(1ULL<<sq)){
-                evalData.add(DOUBLED_PAWN_PENALTY);
+                pawnData.add(DOUBLED_PAWN_PENALTY);
             }
 
             //passed apwn
             if((MASKPASSED[White][sq]&blackPawns)==0){
-                evalData.add(PASSED_PAWN_BONUS[r]);
+                pawnData.add(PASSED_PAWN_BONUS[r]);
             }
         }
 
@@ -93,19 +104,26 @@ namespace ASTROVE::eval {
 
             //isolated pawn
             if((blackPawns & ADJACENT_FILES[f])==0){
-                evalData.subtract(ISOLATED_PAWN_PENALTY);
+                pawnData.subtract(ISOLATED_PAWN_PENALTY);
             }
 
             //double pawn
             if((blackPawns&MASKFILE[f])^(1ULL<<sq)){
-                evalData.subtract(DOUBLED_PAWN_PENALTY);
+                pawnData.subtract(DOUBLED_PAWN_PENALTY);
             }
 
             //passed apwn
             if((MASKPASSED[Black][sq]&whitePawns)==0){
-                evalData.subtract(PASSED_PAWN_BONUS[relative_rank]);
+                pawnData.subtract(PASSED_PAWN_BONUS[relative_rank]);
             }
         }
+
+        // now pack this and store
+        EvalScore finalpawnscore=composeEval(pawnData.opening(),pawnData.endgame());
+        //now stroing
+        ASTROVE::table::pawnhashtable.store(key,finalpawnscore);
+        //now add this to main evaluator
+        evalData.add(finalpawnscore);
     }
 
     void Evaluator::evaluate_mobility(const Position& pos){

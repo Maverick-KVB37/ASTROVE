@@ -1,7 +1,7 @@
 #include "magic.h"
 #include "types.h"
 
-namespace Astrove::magic{
+namespace ASTROVE::magic{
 
     // --- Definitions for the extern variables from the header ---
     Bitboard bishop_masks[64];

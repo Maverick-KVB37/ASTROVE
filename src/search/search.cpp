@@ -34,15 +34,7 @@ Move Searcher::think(const SearchLimits& limits) {
         moveNumber=(fullMoves-1)*2+1;
     }
 
-    // Debug output
-    /*std::cerr << "DEBUG: fullMoves=" << fullMoves 
-              << " side=" << (pos.sideToMove() == White ? "White" : "Black")
-              << " moveNumber=" << moveNumber << std::endl;
-    */
     tm.start(limits,pos.sideToMove(),moveNumber);
-
-    // Debug output
-    //std::cerr << "DEBUG: Allocated time: " << tm.allocatedTime() << "ms" << std::endl;
 
     iterative_deepening(); // main search loop
 
@@ -56,7 +48,6 @@ Move Searcher::think(const SearchLimits& limits) {
                        (bestMove.to() >= 64);
     
     if (info.pv.length == 0 || moveInvalid) {
-        std::cerr << "WARNING: Invalid PV move, generating emergency move" << std::endl;
         
         // Generate emergency move
         MoveList moves;
@@ -90,11 +81,9 @@ Move Searcher::think(const SearchLimits& limits) {
         
         // Last resort: return first move if any exist
         if (!moves.empty()) {
-            std::cerr << "CRITICAL: Returning first pseudo-legal move!" << std::endl;
             return moves[0];
         }
         
-        std::cerr << "FATAL: No moves available!" << std::endl;
         return NO_MOVE;
     }
     

@@ -10,6 +10,7 @@
 #include "../core/zobrist.h"
 #include "../core/magic.h"
 #include "../evaluation/evaluation.h"
+#include "../table/pawnhash.h"
 
 // Don't redefine defaultFEN - it's already in position.h
 
@@ -44,6 +45,7 @@ void UCI::uciLoop() {
         }
         else if (command == "ucinewgame") {
             tt.clear();
+            ASTROVE::table::pawnhashtable.clear();
 
             if (searcher) {
                 searcher->newGame();
@@ -204,7 +206,7 @@ Move UCI::parseMove(const std::string& moveUci) {
 
 void UCI::bootEngine() {
     // Initialize magic bitboards
-    Astrove::magic::init();
+    ASTROVE::magic::init();
     
     // Initialize Zobrist hashing
     zobrist.init();

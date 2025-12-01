@@ -9,6 +9,7 @@
 #include "core/types.h"
 #include "utils/perft.h"
 #include "../src/uci/uci.h"
+#include "table/pawnhash.h"
 
 
 int main(int argc, char* argv[]) {
@@ -17,14 +18,14 @@ int main(int argc, char* argv[]) {
     std::cin.setf(std::ios::unitbuf);
     
         // Initialize magic bitboards
-    Astrove::magic::init();
+    ASTROVE::magic::init();
     
     // Initialize Zobrist hashing
     zobrist.init();
     
     // Initialize evaluation tables
     ASTROVE::eval::InitializePieceSquareTable();
-
+    ASTROVE::table::pawnhashtable.resize(16);
     // Create UCI handler
     UCI uci;
     

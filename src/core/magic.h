@@ -2,7 +2,7 @@
 
 #include "types.h" // Assuming this defines U64 (uint64_t) and Square (enum)
 
-namespace Astrove::magic {
+namespace ASTROVE::magic {
 
     // --- Constant Data ---
     // Pre-computed magic numbers and relevant bit counts for the lookup.

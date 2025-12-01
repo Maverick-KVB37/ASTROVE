@@ -90,6 +90,7 @@ void Position::parseFEN(const std::string& FEN) {
     state->castlingRights = NO_CASTLING;
     state->halfMoveClock = 0;
     state->hashKey = 0;
+    state->pawnKey=0;
     state->captured = None;
     state->previous = nullptr;
     
@@ -161,6 +162,16 @@ void Position::parseFEN(const std::string& FEN) {
     
     // Generate hash
     state->hashKey = generateHashKey();
+
+    // Generate Pawn Key
+    state->pawnKey = 0ULL;
+    for(int piece = WhitePawn; piece <= BlackPawn; piece += 6) { // Loop WhitePawn(0) and BlackPawn(6)
+        Bitboard bb = PiecesBB[piece];
+        while(bb) {
+            Square sq = poplsb(bb);
+            state->pawnKey ^= zobrist.pieceKeys[piece][sq];
+        }
+    }
 }
 
 std::string Position::toFEN() const {
@@ -225,6 +236,13 @@ void Position::placePiece(Piece piece, Square sq) {
     setbit(occupancyAll,sq);
     setbit(color==White ? occupancyWhite : occupancyBlack,sq);
     board[sq] = piece;
+    /*
+    //so we have to update now pawn hash for pawn
+    state->hashKey^=zobrist.pieceKeys[piece][sq];
+    if(piecetype(piece)==Pawn){
+        state->pawnKey^=zobrist.pieceKeys[piece][sq];
+    }
+    */
 }
 
 void Position::removePiece(Square sq) {
@@ -235,6 +253,13 @@ void Position::removePiece(Square sq) {
         clearbit(occupancyAll, sq);
         clearbit(color == White ? occupancyWhite : occupancyBlack, sq);
         board[sq] = None;
+        /*
+        //update zobrist hash
+        state->hashKey^=zobrist.pieceKeys[piece][sq];
+        if(piecetype(piece)==Pawn){
+            state->pawnKey^=zobrist.pieceKeys[piece][sq];
+        }
+        */
     }
 }
 
