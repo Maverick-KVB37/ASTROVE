@@ -14,12 +14,20 @@ Estimated Rating:  **~1904 Elo**(VS Stockfish 1800 benchmark)
 ## Match Results vs Stockfish 1800 elo
 ```
 
-Score of ASTROVEFIN vs Stockfish1800: 114 - 56 - 30  [0.645] 200
-...      ASTROVEFIN playing White: 59 - 25 - 16  [0.670] 100
-...      ASTROVEFIN playing Black: 55 - 31 - 14  [0.620] 100
-...      White vs Black: 90 - 80 - 30  [0.525] 200
-Elo difference: 103.7 +/- 46.3, LOS: 100.0 %, DrawRatio: 15.0 %
+Score of ASTROVEKSIG vs Stockfish1800: 113 - 55 - 32  [0.645] 200
+...      ASTROVEKSIG playing White: 58 - 27 - 15  [0.655] 100
+...      ASTROVEKSIG playing Black: 55 - 28 - 17  [0.635] 100
+...      White vs Black: 86 - 82 - 32  [0.510] 200
+Elo difference: 103.7 +/- 46.0, LOS: 100.0 %, DrawRatio: 16.0 %
 SPRT: llr 0 (0.0%), lbound -inf, ubound inf
+
+Score of ASTROVEBUG vs ASTROVEKSIG: 11 - 6 - 23  [0.563] 40
+...      ASTROVEBUG playing White: 9 - 1 - 10  [0.700] 20
+...      ASTROVEBUG playing Black: 2 - 5 - 13  [0.425] 20
+...      White vs Black: 14 - 3 - 23  [0.637] 40
+Elo difference: 43.7 +/- 70.9, LOS: 88.7 %, DrawRatio: 57.5 %
+SPRT: llr 0 (0.0%), lbound -inf, ubound inf
+
 
 ```
 
